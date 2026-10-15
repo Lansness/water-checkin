@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>一起喝水</title>
+<style>
+:root{
+  --bg:#f4f7fc; --card:#fff; --ink:#1b2733; --ink2:#5a6a7e; --ink3:#94a3b8;
+  --line:#e7eef7; --blue:#2f7cf6; --blue-d:#1b5fd0; --blue-l:#eaf2ff;
+  --green:#18b26b; --green-l:#e8f7ef; --amber:#f5a524; --red:#e5484d;
+  --r:16px; --sh:0 1px 2px rgba(27,39,51,.05),0 8px 24px rgba(27,39,51,.05);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px 40px}
+h2{font-size:17px;margin:0 0 12px}
+h3{font-size:15px;margin:0}
+small{font-size:11.5px}
+.sub{color:var(--ink2);font-size:12.5px}
+.note{color:var(--ink3);font-size:12px}
+
+/* 顶栏 */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:600}
+.logo{font-size:20px}
+.me{
+  display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--card);
+  border-radius:999px;padding:6px 14px 6px 10px;cursor:pointer;font-size:13px;color:var(--ink);
+  font-family:inherit;box-shadow:var(--sh)
+}
+.me:hover{border-color:#cfe0f7}
+.me .r{font-size:17px}
+
+/* 页签 */
+.tabs{display:flex;gap:6px;background:#e9eff8;border-radius:12px;padding:4px;margin-bottom:16px}
+.tab{
+  flex:1;border:0;background:transparent;border-radius:9px;padding:9px 0;font-size:14px;
+  color:var(--ink2);cursor:pointer;font-family:inherit;font-weight:500
+}
+.tab.on{background:var(--card);color:var(--blue-d);box-shadow:0 1px 3px rgba(27,39,51,.08)}
+
+/* 卡片 */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:18px;margin-bottom:14px}
+.chead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+
+/* 错误条 */
+.banner{
+  border-radius:12px;padding:11px 14px;margin-bottom:14px;font-size:13px;line-height:1.55;
+  background:#fdecec;color:#8f2226;border:1px solid #f7c8c8
+}
+.banner.info{background:var(--blue-l);color:var(--blue-d);border-color:#cfe0f7}
+.banner.warn{background:#fff8e8;color:#8a5a05;border-color:#f6e0b4}
+
+/* 日期条 */
+.datebar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.datebar .nav{
+  width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--card);
+  cursor:pointer;font-size:13px;color:var(--ink2);font-family:inherit
+}
+.datebar .nav:disabled{opacity:.35;cursor:default}
+.datebox{flex:1;text-align:center;line-height:1.25}
+.datebox .d{font-size:15px;font-weight:600}
+.datebox .s{font-size:12px;color:var(--ink3)}
+.datebar .today{
+  border:1px solid #cfe0f7;background:var(--blue-l);color:var(--blue-d);border-radius:11px;
+  padding:9px 13px;font-size:13px;cursor:pointer;font-family:inherit
+}
+.datebar .today:disabled{opacity:.4;cursor:default}
+
+/* 喝水主卡 */
+.drink{display:flex;gap:24px;align-items:center}
+.glasswrap{flex:0 0 108px;display:flex;justify-content:center}
+.glass{
+  position:relative;width:96px;height:150px;border:2.5px solid #cfe0f7;border-radius:9px 9px 20px 20px;
+  overflow:hidden;background:linear-gradient(180deg,#fbfdff,#f1f6fd)
+}
+.glass .fill{
+  position:absolute;left:0;right:0;bottom:0;height:0;
+  background:linear-gradient(180deg,#8fc4ff,#3f8dfa);transition:height .45s cubic-bezier(.3,1,.5,1)
+}
+.glass .gtext{
+  position:absolute;inset:0;display:grid;place-items:center;font-size:16px;font-weight:600;color:#1b5fd0;
+  text-shadow:0 1px 0 rgba(255,255,255,.75)
+}
+.glass.over .fill{background:linear-gradient(180deg,#ffc861,#f5a524)}
+.glass.over .gtext{color:#8a5a05}
+.dright{flex:1;min-width:0}
+.goal-line{font-size:12.5px;color:var(--ink3);margin-bottom:2px}
+.disp{font-size:34px;font-weight:600;line-height:1.15;letter-spacing:-.5px}
+.disp small{font-size:14px;font-weight:500;color:var(--ink2);margin-left:4px}
+.dleft{font-size:12.5px;color:var(--ink2);margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{
+  border:1px solid #d9e6f8;background:#f7fafe;border-radius:11px;padding:8px 12px;cursor:pointer;
+  font-family:inherit;text-align:left;line-height:1.25;color:var(--ink)
+}
+.chip:hover{border-color:var(--blue);background:var(--blue-l)}
+.chip:disabled{opacity:.5;cursor:default}
+.chip b{display:block;font-size:13px;font-weight:600}
+.chip span{display:block;font-size:11.5px;color:var(--ink3)}
+.custom{display:flex;flex-direction:column;gap:8px}
+.custom .crow{display:flex;gap:8px}
+.custom input{
+  flex:1;min-width:0;border:1px solid var(--line);border-radius:11px;padding:9px 12px;font-size:14px;
+  font-family:inherit;color:var(--ink);background:#fbfdff
+}
+.custom #customNote{flex:0 0 auto;font-size:13px;padding:8px 12px}
+.custom input:focus{outline:2px solid #cfe0f7;outline-offset:-1px}
+.custom input:disabled{opacity:.6;cursor:default}
+.custom button{
+  flex:0 0 auto;border:0;background:var(--blue);color:#fff;border-radius:11px;padding:9px 16px;font-size:14px;
+  cursor:pointer;font-family:inherit;font-weight:500
+}
+.custom button:hover{background:var(--blue-d)}
+.custom button:disabled{opacity:.5;cursor:default}
+
+/* 徽标 */
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.badge{
+  background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:12.5px;
+  color:var(--ink2);box-shadow:var(--sh)
+}
+.badge.good{background:var(--green-l);border-color:#c7ecd8;color:#0f7a48}
+
+/* 流水 */
+.ledger{display:flex;flex-direction:column;gap:2px}
+.lrow{display:flex;align-items:center;gap:12px;padding:9px 2px;border-bottom:1px solid #f2f6fb}
+.lrow:last-child{border-bottom:0}
+.ltime{flex:0 0 46px;color:var(--ink3);font-size:12px;font-variant-numeric:tabular-nums}
+.llabel{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lamt{font-weight:600;font-variant-numeric:tabular-nums}
+.lrow.neg .llabel,.lrow.neg .lamt{color:var(--ink3)}
+.lrow.neg .lamt{font-weight:500}
+.lx{
+  border:1px solid var(--line);background:#fff;color:var(--ink3);border-radius:8px;width:26px;height:26px;
+  cursor:pointer;font-family:inherit;font-size:14px;line-height:1;flex:0 0 auto
+}
+.lx:hover{border-color:#f3c9c9;color:var(--red);background:#fdf2f2}
+.lx:disabled{opacity:.4;cursor:default}
+.empty{color:var(--ink3);font-size:13px;padding:16px 0;text-align:center}
+
+/* 分段选择 */
+.seg{display:flex;gap:4px;background:#eef3fa;border-radius:10px;padding:3px}
+.seg button{
+  border:0;background:transparent;border-radius:8px;padding:6px 13px;font-size:12.5px;color:var(--ink2);
+  cursor:pointer;font-family:inherit
+}
+.seg button.on{background:#fff;color:var(--blue-d);font-weight:500;box-shadow:0 1px 2px rgba(27,39,51,.08)}
+
+/* 指标 */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.metric{background:#f7fafe;border-radius:12px;padding:11px 12px;text-align:center}
+.metric .k{font-size:11.5px;color:var(--ink3);margin-bottom:3px}
+.metric .v{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:12px;color:var(--ink2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* 排行榜 */
+.board{display:flex;flex-direction:column;gap:6px}
+.brow{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:12px;background:#fbfdff}
+.brow.me{background:var(--blue-l);box-shadow:inset 0 0 0 1px #cfe0f7}
+.brow.top1{background:linear-gradient(90deg,#fff9e8,#fffdf7)}
+.brow.top2{background:linear-gradient(90deg,#f4f6f9,#fdfeff)}
+.brow.top3{background:linear-gradient(90deg,#fdf3ec,#fffdfb)}
+.rank{
+  flex:0 0 26px;text-align:center;font-weight:600;font-size:14px;color:var(--ink3);
+  font-variant-numeric:tabular-nums
+}
+.brow.top1 .rank{color:#b8860b}.brow.top2 .rank{color:#7d8b9c}.brow.top3 .rank{color:#b5713f}
+.brole{flex:0 0 auto;font-size:20px;line-height:1}
+.bname{flex:0 0 auto;max-width:132px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btag{font-size:10.5px;background:var(--blue);color:#fff;border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:1px}
+.bbar{flex:1;min-width:34px;height:7px;background:#e9f0f9;border-radius:99px;overflow:hidden}
+.bbar i{display:block;height:100%;background:var(--blue);border-radius:99px;transition:width .4s}
+.bbar i.hit{background:var(--green)}
+.bval{flex:0 0 auto;font-weight:600;font-size:13.5px;font-variant-numeric:tabular-nums;text-align:right;min-width:78px}
+.bval small{color:var(--ink3);font-weight:400;margin-left:2px}
+.bstreak{flex:0 0 auto;font-size:11.5px;color:var(--amber);min-width:34px;text-align:right}
+
+/* 页脚 */
+.foot{margin-top:20px;text-align:center;color:var(--ink3);font-size:12px}
+.foot button{
+  border:0;background:transparent;color:var(--blue);cursor:pointer;font-family:inherit;font-size:12px;
+  text-decoration:underline;text-underline-offset:3px
+}
+
+/* 弹窗 */
+.mask{
+  position:fixed;inset:0;background:rgba(24,35,48,.42);display:none;align-items:center;justify-content:center;
+  padding:18px;z-index:50;overflow:auto
+}
+.mask.show{display:flex}
+.dlg{
+  background:#fff;border-radius:18px;padding:24px;width:100%;max-width:430px;box-shadow:0 24px 60px rgba(24,35,48,.24)
+}
+.dlg h2{margin-bottom:6px}
+.dlg>p.sub{margin:0 0 18px}
+.lb{display:block;font-size:12.5px;color:var(--ink2);margin:14px 0 7px;font-weight:500}
+.dlg input{
+  width:100%;border:1px solid var(--line);border-radius:11px;padding:10px 12px;font-size:15px;
+  font-family:inherit;color:var(--ink);background:#fbfdff
+}
+.dlg input:focus{outline:2px solid #cfe0f7;outline-offset:-1px}
+.roles{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.roles button{
+  aspect-ratio:1;border:1px solid var(--line);background:#fbfdff;border-radius:11px;font-size:21px;
+  cursor:pointer;line-height:1;padding:0
+}
+.roles button.on{border-color:var(--blue);background:var(--blue-l);box-shadow:0 0 0 1px var(--blue) inset}
+.presets{display:flex;flex-direction:column;gap:8px}
+.pitem{display:flex;gap:8px;align-items:center}
+.pitem input{flex:1;min-width:0}
+.pitem input.num{flex:0 0 96px}
+.pitem .del{
+  border:1px solid var(--line);background:#fff;color:var(--ink3);border-radius:9px;width:34px;height:38px;
+  cursor:pointer;font-family:inherit;flex:0 0 auto
+}
+.pitem .del:hover{border-color:#f3c9c9;color:var(--red)}
+/* 选已有的人 */
+.pick{display:flex;flex-direction:column;gap:7px;max-height:212px;overflow:auto;margin-bottom:2px}
+.pk{
+  display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#fbfdff;
+  border-radius:11px;padding:10px 12px;cursor:pointer;font-family:inherit;text-align:left;
+  color:var(--ink);font-size:14px;width:100%
+}
+.pk:hover{border-color:var(--blue);background:var(--blue-l)}
+.pk .r{font-size:19px;line-height:1;flex:0 0 auto}
+.pk .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.pk .g{font-size:11.5px;color:var(--ink3);flex:0 0 auto}
+.or{display:flex;align-items:center;gap:10px;color:var(--ink3);font-size:12px;margin:18px 0 2px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.ghost{
+  border:1px dashed #cfe0f7;background:#fbfdff;color:var(--blue-d);border-radius:11px;padding:9px 14px;
+  font-size:13px;cursor:pointer;font-family:inherit;margin-top:10px;width:100%
+}
+.ghost:hover{background:var(--blue-l)}
+.row{display:flex;gap:10px;margin-top:20px}
+.row button{flex:1;border-radius:12px;padding:11px 0;font-size:14.5px;cursor:pointer;font-family:inherit}
+.primary{border:0;background:var(--blue);color:#fff;font-weight:500;width:100%;border-radius:12px;padding:12px 0;font-size:15px;cursor:pointer;font-family:inherit;margin-top:20px}
+.primary:hover{background:var(--blue-d)}
+.primary:disabled{opacity:.55;cursor:default}
+.row .primary{margin-top:0}
+.err{color:var(--red);font-size:12.5px;margin-top:12px;min-height:0}
+.err:empty{display:none}
+
+@media (max-width:560px){
+  .drink{flex-direction:column;align-items:stretch;gap:16px}
+  .glasswrap{flex:0 0 auto}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .bname{max-width:78px}
+  .bval{min-width:64px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="logo">💧</span><span>一起喝水</span></div>
+    <button class="me" id="meBtn"><span class="r" id="meRole">·</span><span id="meName">载入中…</span></button>
+  </header>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <nav class="tabs">
+    <button class="tab on" data-view="mine">我的记录</button>
+    <button class="tab" data-view="board">排行榜</button>
+  </nav>
+
+  <section id="viewMine">
+    <div class="datebar">
+      <button class="nav" id="prevDay" title="前一天">◀</button>
+      <div class="datebox"><div class="d" id="dateText">—</div><div class="s" id="dateSub"></div></div>
+      <button class="nav" id="nextDay" title="后一天">▶</button>
+      <button class="today" id="goToday">今天</button>
+    </div>
+
+    <div class="card drink">
+      <div class="glasswrap">
+        <div class="glass" id="glass"><div class="fill" id="glassFill"></div><div class="gtext" id="glassPct">0%</div></div>
+      </div>
+      <div class="dright">
+        <div class="goal-line" id="goalLine">目标 2,000 ml</div>
+        <div class="disp"><span id="dayTotal">0</span><small>ml</small></div>
+        <div class="dleft" id="dayLeft"></div>
+        <div class="chips" id="chips"></div>
+        <div class="custom">
+          <div class="crow">
+            <input id="customAmt" type="number" inputmode="numeric" min="1" step="50" placeholder="自定义 ml，比如 220">
+            <button id="addCustom">添加</button>
+          </div>
+          <input id="customNote" type="text" maxlength="24" autocomplete="off" placeholder="备注（可选）：这是什么，比如 运动后补水">
+        </div>
+      </div>
+    </div>
+
+    <div class="badges" id="badges"></div>
+
+    <div class="card">
+      <div class="chead"><h3 id="ledgerTitle">这天的流水</h3><span class="sub" id="ledgerSum"></span></div>
+      <div class="ledger" id="ledger"></div>
+    </div>
+
+    <div class="card">
+      <div class="chead">
+        <h3>我的统计</h3>
+        <div class="seg" id="rangeSeg">
+          <button data-range="day" class="on">每日</button>
+          <button data-range="week">每周</button>
+          <button data-range="month">每月</button>
+        </div>
+      </div>
+      <div class="metrics" id="metrics"></div>
+      <div class="chart" id="chart"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </section>
+
+  <section id="viewBoard" hidden>
+    <div class="card">
+      <div class="chead">
+        <h3>排行榜</h3>
+        <div class="seg" id="boardSeg">
+          <button data-b="day" class="on">今日</button>
+          <button data-b="week">本周</button>
+          <button data-b="month">本月</button>
+        </div>
+      </div>
+      <div class="board" id="board"></div>
+      <div class="sub" id="boardFoot" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <button id="refreshBtn">刷新数据</button> · 数据存在云端，所有人共享 · 记录只增不改
+  </div>
+</div>
+
+<div class="mask" id="maskJoin">
+  <div class="dlg">
+    <h2>加入一起喝水</h2>
+    <p class="sub">取个名字、选个形象就能开始。<br>不用注册，不用密码。</p>
+
+    <div id="joinPickWrap" hidden>
+      <label class="lb">之前用过？直接选自己</label>
+      <div class="pick" id="joinPick"></div>
+      <div class="or">或者新建一个</div>
+    </div>
+
+    <label class="lb" for="joinName">你的名字</label>
+    <input id="joinName" maxlength="12" placeholder="比如：阿汤" autocomplete="off">
+    <label class="lb">选个形象</label>
+    <div class="roles" id="joinRoles"></div>
+    <div class="err" id="joinErr"></div>
+    <button class="primary" id="joinBtn">加入</button>
+    <div class="row" id="joinCancelRow" hidden>
+      <button class="ghost" id="joinCancel" style="margin-top:0">取消</button>
+    </div>
+    <p class="note" style="margin-top:12px" id="joinNote">名字在你们这个小圈子里是唯一的，被别人用过就得换一个。</p>
+  </div>
+</div>
+
+<!-- 页面内确认框：不用 window.confirm，因为内置浏览器/应用内 webview 会屏蔽原生弹窗 -->
+<div class="mask" id="maskAsk">
+  <div class="dlg">
+    <h2 id="askTitle">确认</h2>
+    <p class="sub" id="askBody" style="white-space:pre-line"></p>
+    <div class="row">
+      <button class="ghost" id="askNo" style="margin-top:0">取消</button>
+      <button class="primary" id="askYes">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="maskMe">
+  <div class="dlg">
+    <h2>我的设置</h2>
+    <label class="lb" for="meNameInput">名字</label>
+    <input id="meNameInput" maxlength="12" autocomplete="off">
+    <label class="lb">形象</label>
+    <div class="roles" id="meRoles"></div>
+    <label class="lb" for="meGoal">每日目标（ml）</label>
+    <input id="meGoal" type="number" min="200" step="50">
+    <label class="lb">快捷项</label>
+    <div class="presets" id="mePresets"></div>
+    <button class="ghost" id="presetAdd">＋ 加一个快捷项</button>
+    <div class="err" id="meErr"></div>
+    <div class="row">
+      <button class="ghost" id="meCancel" style="margin-top:0">取消</button>
+      <button class="primary" id="meSave">保存</button>
+    </div>
+    <button class="ghost" id="meSwitch" style="margin-top:14px">不是这个身份？选已有的人</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+<script>
+/* =======================================================================
+   一起喝水 —— 单文件、零构建，数据存在 WorkBuddy 云服务
+   身份：浏览器本地生成的 device_key（不用注册、不用密码）
+   entries 表在数据库层面只允许 INSERT/SELECT，任何人都改不了、删不掉
+   ======================================================================= */
+
+/* ---------- 配置 ----------
+   地址与密钥放在同目录的 config.js 里，那份文件已被 .gitignore 排除，不会进仓库。
+   克隆本项目后，请复制 config.example.js 为 config.js，填入你自己的云服务配置。 */
+var CLOUD = (typeof window !== "undefined" && window.WATER_CLOUD) || null;
+
+var GOAL_DEFAULT = 2000;
+var DEFAULT_PRESETS = [
+  { label: "1 壶", amt: 1500 },
+  { label: "1 保温杯", amt: 500 },
+  { label: "1 瓶装水", amt: 550 },
+  { label: "1 纸杯", amt: 200 }
+];
+var ROLES = ["🐳","🐧","🐻","🐼","🦊","🐨","🐯","🦁","🐸","🐙","🦄","🐢"];
+var DEVICE_STORE = "water-device-key-v1";
+var FETCH_DAYS = 400;
+/* 备用 CDN：国内访问 jsdelivr 偶尔不通，主源失败自动换一个 */
+var SDK_FALLBACKS = [
+  "https://unpkg.com/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"
+];
+
+/* ---------- 小工具 ---------- */
+function esc(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+    return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+  });
+}
+function fmtN(v){
+  var n = Math.round(Number(v) || 0);
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function fmtVol(v){
+  var n = Math.round(Number(v) || 0);
+  var a = Math.abs(n);
+  if(a >= 1000) return (n/1000).toFixed(1) + " L";
+  return n + " ml";
+}
+function num(v, d){
+  var n = Number(v);
+  return isFinite(n) ? n : d;
+}
+function pd(s){
+  var p = String(s).split("-");
+  return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+}
+function ymd(d){
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function todayStr(){ return ymd(new Date()); }
+function addDays(s, n){
+  var d = pd(s); d.setDate(d.getDate() + n); return ymd(d);
+}
+function diffDays(a, b){
+  return Math.round((pd(b) - pd(a)) / 86400000);
+}
+function weekStart(s){
+  var d = pd(s);
+  var w = (d.getDay() + 6) % 7;      // 周一为一周起点
+  d.setDate(d.getDate() - w);
+  return ymd(d);
+}
+function monthStart(s){
+  var d = pd(s);
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-01";
+}
+function monthShift(s, n){
+  var d = pd(s);
+  return ymd(new Date(d.getFullYear(), d.getMonth() + n, 1));
+}
+function daysInMonth(y, m){ return new Date(y, m + 1, 0).getDate(); }
+var DOW = ["周日","周一","周二","周三","周四","周五","周六"];
+function dowName(s){ return DOW[pd(s).getDay()]; }
+
+/* ---------- 状态 ---------- */
+var deviceKey = "";
+var state = {
+  me: null,
+  players: [],
+  entries: [],
+  byDay: {},          // { deviceKey: { "YYYY-MM-DD": total } }
+  view: "mine",
+  range: "day",
+  board: "day",
+  date: todayStr(),
+  busy: false,
+  loaded: false
+};
+
+/* ---------- 云客户端 ---------- */
+var cloud = null;
+var db = null;
+
+function initCloud(){
+  if (typeof WorkBuddyCloud === "undefined" || !WorkBuddyCloud.createWorkBuddyCloud) return false;
+  cloud = WorkBuddyCloud.createWorkBuddyCloud({
+    endpoint: CLOUD.endpoint,
+    oauthRelayBaseUrl: CLOUD.oauthRelayBaseUrl,
+    publishableKey: CLOUD.publishableKey
+  });
+  db = cloud.database;
+  return true;
+}
+
+/* ---------- 数据访问层（自测时可整体替换） ---------- */
+var api = {
+  listPlayers: function(){
+    return db.from("players").select("*").order("created_at", { ascending: true });
+  },
+  createPlayer: function(row){
+    return db.from("players").insert(row).select();
+  },
+  updatePlayer: function(deviceKey_, patch){
+    return db.from("players").update(patch).eq("device_key", deviceKey_).select();
+  },
+  listEntries: function(since){
+    return fetchAll(function(from, to){
+      return db.from("entries").select("*").gte("day", since)
+        .order("id", { ascending: true }).range(from, to);
+    });
+  },
+  insertEntry: function(row){
+    return db.from("entries").insert(row).select();
+  }
+};
+
+/* 分页拉全量（PostgREST 单次有行数上限） */
+function fetchAll(pageFn){
+  var PAGE = 1000, out = [], from = 0, i;
+  function step(){
+    return pageFn(from, from + PAGE - 1).then(function(res){
+      if (res.error) throw res.error;
+      var rows = res.data || [];
+      out = out.concat(rows);
+      if (rows.length < PAGE || i >= 20) return out;
+      from += PAGE; i++;
+      return step();
+    });
+  }
+  i = 0;
+  return step().then(function(){ return { data: out, error: null }; });
+}
+
+/* ---------- 计算 ---------- */
+function rebuildIndex(){
+  var idx = {};
+  var dp = {};
+  state.players.forEach(function(p){ idx[p.device_key] = p; dp[p.device_key] = {}; });
+  state.entries.forEach(function(e){
+    if (!dp[e.device_key]) dp[e.device_key] = {};
+    dp[e.device_key][e.day] = (dp[e.device_key][e.day] || 0) + num(e.amount, 0);
+  });
+  state.byDevice = idx;
+  state.byDay = dp;
+}
+function goalOf(p){
+  var g = Math.round(num(p && p.goal, 0));
+  return g > 0 ? g : GOAL_DEFAULT;
+}
+function totalOn(deviceKey_, day){
+  var m = state.byDay[deviceKey_] || {};
+  return m[day] || 0;
+}
+function myGoal(){ return goalOf(state.me); }
+function myPresets(){
+  var p = state.me && state.me.presets;
+  if (!Array.isArray(p) || !p.length) return DEFAULT_PRESETS.slice();
+  return p.filter(function(x){ return x && num(x.amt, 0) > 0; });
+}
+function streakOf(deviceKey_, goal){
+  var d = todayStr(), n = 0;
+  if (!(totalOn(deviceKey_, d) >= goal)) d = addDays(d, -1);   // 今天还没完成不算断卡
+  while (totalOn(deviceKey_, d) >= goal) { n++; d = addDays(d, -1); }
+  return n;
+}
+
+/* 统计序列：近 7 天 / 近 8 周（周一起） / 近 12 月 */
+function buildSeries(deviceKey_, range, goal){
+  var t = todayStr(), out = [], i, k;
+  if (range === "day"){
+    for (i = 6; i >= 0; i--){
+      var d = addDays(t, -i);
+      out.push({
+        label: d.slice(5).replace("-", "/"), sub: dowName(d),
+        value: totalOn(deviceKey_, d), target: goal, days: 1, key: d, now: i === 0
+      });
+    }
+  } else if (range === "week"){
+    var w0 = weekStart(t);
+    for (i = 7; i >= 0; i--){
+      var ws = addDays(w0, -7 * i), v = 0, days = 0;
+      for (k = 0; k < 7; k++){
+        var wd = addDays(ws, k);
+        if (wd > t) break;
+        v += totalOn(deviceKey_, wd); days++;
+      }
+      out.push({ label: ws.slice(5).replace("-", "/"), sub: "", value: v, target: goal * days, days: days, key: ws, now: i === 0 });
+    }
+  } else {
+    for (i = 11; i >= 0; i--){
+      var ms = monthShift(monthStart(t), -i), v2 = 0, days2 = 0;
+      var dim = daysInMonth(pd(ms).getFullYear(), pd(ms).getMonth());
+      for (k = 0; k < dim; k++){
+        var md = addDays(ms, k);
+        if (md > t) break;
+        v2 += totalOn(deviceKey_, md); days2++;
+      }
+      out.push({ label: ms.slice(2, 7).replace("-", "/"), sub: "", value: v2, target: goal * days2, days: days2, key: ms.slice(0, 7), now: i === 0 });
+    }
+  }
+  return out;
+}
+function seriesMetrics(points){
+  var total = 0, days = 0, hit = 0;
+  points.forEach(function(p){
+    total += p.value; days += p.days;
+    if (p.target > 0 && p.value >= p.target) hit++;
+  });
+  return {
+    total: total,
+    avg: days > 0 ? Math.round(total / days) : 0,
+    hit: hit,
+    count: points.length,
+    rate: points.length ? Math.round(hit / points.length * 100) : 0
+  };
+}
+
+/* 排行榜 */
+function boardData(period){
+  var t = todayStr(), from, days;
+  if (period === "day"){ from = t; days = 1; }
+  else if (period === "week"){ from = weekStart(t); days = diffDays(from, t) + 1; }
+  else { from = monthStart(t); days = diffDays(from, t) + 1; }
+
+  var rows = state.players.map(function(p){
+    var g = goalOf(p), v = 0;
+    state.entries.forEach(function(e){
+      if (e.device_key === p.device_key && e.day >= from && e.day <= t) v += num(e.amount, 0);
+    });
+    var target = g * days;
+    return {
+      device_key: p.device_key, nickname: p.nickname || "无名", role: p.role || "🐳",
+      goal: g, value: v, target: target, hit: v >= target && target > 0,
+      streak: streakOf(p.device_key, g)
+    };
+  });
+  rows.sort(function(a, b){
+    if (b.value !== a.value) return b.value - a.value;
+    return String(a.nickname).localeCompare(String(b.nickname));
+  });
+  var rank = 0, prev = null;
+  rows.forEach(function(r, i){
+    if (prev === null || r.value !== prev){ rank = i + 1; prev = r.value; }
+    r.rank = rank;
+  });
+  return { rows: rows, from: from, days: days };
+}
+
+/* ---------- 图表 ---------- */
+function niceScale(max, want){
+  if (!(max > 0)) max = 1;
+  var raw = max / want;
+  var mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  var n = raw / mag, mult;
+  if (n <= 1) mult = 1;
+  else if (n <= 2) mult = 2;
+  else if (n <= 2.5) mult = 2.5;
+  else if (n <= 5) mult = 5;
+  else mult = 10;
+  var step = mult * mag;
+  if (max <= 10 && step < 1) step = 1;
+  var ticks = Math.max(1, Math.ceil(max / step));
+  return { niceMax: step * ticks, step: step, ticks: ticks };
+}
+function barChart(points, opt){
+  var W = 680, H = 292, padL = 66, padR = 16, padT = 26, padB = 56;
+  var iw = W - padL - padR, ih = H - padT - padB;
+  var maxRaw = 1, maxTgt = 0;
+  points.forEach(function(p){
+    if (p.value > maxRaw) maxRaw = p.value;
+    if (p.target > maxTgt) maxTgt = p.target;
+  });
+  var sc0 = niceScale(Math.max(maxRaw, maxTgt), 4);
+  var niceMax = sc0.niceMax;
+  var sc = function(v){ return padT + ih - (v / niceMax) * ih; };
+  var n = points.length, step = iw / n;
+  var bw = Math.min(46, step * 0.56);
+  var showLabel = n <= 8;
+
+  var g = "", i;
+  for (i = 0; i <= sc0.ticks; i++){
+    var v = sc0.step * i, y = sc(v);
+    g += '<line x1="' + padL + '" y1="' + y.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + y.toFixed(1) + '" stroke="#eaf0f8" stroke-width="1"/>';
+    g += '<text x="' + (padL - 9) + '" y="' + (y + 4).toFixed(1) + '" text-anchor="end" font-size="11" fill="#94a3b8">' + fmtN(v) + '</text>';
+  }
+
+  points.forEach(function(p, idx){
+    var cx = padL + step * idx + step / 2;
+    var x = cx - bw / 2;
+    var y = sc(Math.max(0, p.value));
+    var hgt = Math.max(p.value > 0 ? 3 : 0, padT + ih - y);
+    var done = p.target > 0 && p.value >= p.target;
+    if (hgt > 0){
+      g += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + hgt.toFixed(1) +
+           '" rx="' + Math.min(6, bw / 3).toFixed(1) + '" fill="' + (done ? "#18b26b" : "#3f8dfa") + '">' +
+           '<title>' + esc(p.label) + '：' + fmtN(p.value) + ' ml / 目标 ' + fmtN(p.target) + ' ml</title></rect>';
+      if (showLabel) g += '<text x="' + cx.toFixed(1) + '" y="' + (y - 7).toFixed(1) + '" text-anchor="middle" font-size="11" fill="#5a6a7e" font-weight="600">' + fmtN(p.value) + '</text>';
+    } else {
+      g += '<rect x="' + x.toFixed(1) + '" y="' + (padT + ih - 3).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="3" rx="1.5" fill="#e8eef7"/>';
+    }
+    if (p.target > 0){
+      var ty = sc(p.target);
+      g += '<line x1="' + (x - 4).toFixed(1) + '" y1="' + ty.toFixed(1) + '" x2="' + (x + bw + 4).toFixed(1) + '" y2="' + ty.toFixed(1) +
+           '" stroke="#f5a524" stroke-width="1.6" stroke-dasharray="4 3"/>';
+    }
+    var isLast = idx === n - 1;
+    g += '<text x="' + cx.toFixed(1) + '" y="' + (padT + ih + 20) + '" text-anchor="middle" font-size="11.5" fill="' + (isLast ? "#1b5fd0" : "#7d8fa6") +
+         '" font-weight="' + (isLast ? 700 : 500) + '">' + esc(p.label) + '</text>';
+    if (showLabel && p.sub) g += '<text x="' + cx.toFixed(1) + '" y="' + (padT + ih + 35) + '" text-anchor="middle" font-size="10" fill="#a9b8ca">' + esc(p.sub) + '</text>';
+  });
+  g += '<line x1="' + padL + '" y1="' + (padT + ih) + '" x2="' + (W - padR) + '" y2="' + (padT + ih) + '" stroke="#dbe5f1" stroke-width="1.2"/>';
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="饮水统计柱状图">' + g + '</svg>';
+}
+
+/* ---------- DOM 辅助 ---------- */
+function $(id){ return document.getElementById(id); }
+function setText(id, s){ var el = $(id); if (el) el.textContent = s; }
+function setHTML(id, s){ var el = $(id); if (el) el.innerHTML = s; }
+
+function showBanner(msg, kind){
+  var el = $("banner");
+  if (!el) return;
+  if (!msg){ el.hidden = true; el.textContent = ""; el.className = "banner"; return; }
+  el.hidden = false;
+  el.className = "banner" + (kind ? " " + kind : "");
+  el.textContent = msg;
+}
+
+/* ---------- 渲染 ---------- */
+function renderHeader(){
+  if (state.me){
+    setText("meRole", state.me.role || "🐳");
+    setText("meName", state.me.nickname || "我");
+  } else {
+    setText("meRole", "·");
+    setText("meName", "未加入");
+  }
+}
+
+function renderDateBar(){
+  var t = todayStr();
+  var d = state.date;
+  setText("dateText", d);
+  setText("dateSub", d === t ? "今天" : (d === addDays(t, -1) ? "昨天" : dowName(d) + " · 补录"));
+  var next = $("nextDay"), gt = $("goToday");
+  if (next) next.disabled = d >= t;
+  if (gt) gt.disabled = d === t;
+}
+
+function renderDrink(){
+  var goal = myGoal();
+  var v = totalOn(deviceKey, state.date);
+  var pct = goal > 0 ? Math.round(v / goal * 100) : 0;
+  var fillPct = Math.min(100, pct);
+  var glass = $("glass"), fill = $("glassFill");
+  if (fill) fill.style.height = fillPct + "%";
+  if (glass){
+    glass.classList.toggle("over", v > goal);
+    glass.classList.remove("on");
+  }
+  setText("glassPct", pct + "%");
+  setText("goalLine", "目标 " + fmtN(goal) + " ml");
+  setText("dayTotal", fmtN(v));
+  setText("dayLeft", v >= goal
+    ? (v > goal ? "已超额 " + fmtN(v - goal) + " ml 🎉" : "刚好达标 ✅")
+    : "还差 " + fmtN(goal - v) + " ml");
+
+  var chips = myPresets().map(function(p, i){
+    return '<button class="chip" data-preset="' + i + '"' + (state.busy ? " disabled" : "") + '>' +
+      '<b>' + esc(p.label || "记一笔") + '</b><span>' + fmtN(p.amt) + ' ml</span></button>';
+  }).join("");
+  setHTML("chips", chips || '<span class="note">还没有快捷项，点右上角设置里加一个</span>');
+
+  var btn = $("addCustom");
+  if (btn) btn.disabled = state.busy;
+  var nt = $("customNote");
+  if (nt) nt.disabled = state.busy;
+}
+
+function renderLedger(){
+  var list = state.entries.filter(function(e){
+    return e.device_key === deviceKey && e.day === state.date;
+  });
+  var t = todayStr();
+  setText("ledgerTitle", state.date === t ? "今天的流水" : state.date + " 的流水");
+  var sum = list.reduce(function(a, b){ return a + num(b.amount, 0); }, 0);
+  setText("ledgerSum", list.length ? ("合计 " + fmtVol(sum)) : "");
+
+  if (!list.length){
+    setHTML("ledger", '<div class="empty">还没有记录。点上面的快捷项记一笔。</div>');
+    return;
+  }
+  setHTML("ledger", list.map(function(e){
+    var neg = num(e.amount, 0) < 0;
+    var time = "";
+    if (state.date === t && e.created_at){
+      var d = new Date(e.created_at);
+      if (!isNaN(d.getTime())) time = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    }
+    var label = e.label || (neg ? "撤销" : "记录");
+    return '<div class="lrow' + (neg ? " neg" : "") + '">' +
+      '<span class="ltime">' + esc(time) + '</span>' +
+      '<span class="llabel">' + esc(label) + '</span>' +
+      '<span class="lamt">' + (neg ? "−" : "") + fmtN(Math.abs(num(e.amount, 0))) + ' ml</span>' +
+      '<button class="lx" data-undo="' + esc(e.id) + '" title="撤销这条（会追加一条负数抵消）"' + (state.busy ? " disabled" : "") + '>×</button>' +
+      '</div>';
+  }).join(""));
+}
+
+function renderBadges(){
+  var goal = myGoal();
+  var s = streakOf(deviceKey, goal);
+  var days = Object.keys(state.byDay[deviceKey] || {}).filter(function(d){
+    return (state.byDay[deviceKey][d] || 0) > 0;
+  }).length;
+  var wk = boardData("week");
+  var mine = null;
+  wk.rows.forEach(function(r){ if (r.device_key === deviceKey) mine = r; });
+  var html = "";
+  if (s > 1) html += '<span class="badge good">🔥 连续达标 ' + s + ' 天</span>';
+  html += '<span class="badge">📅 已记录 ' + days + ' 天</span>';
+  if (mine) html += '<span class="badge">本周 ' + fmtVol(mine.value) + ' / ' + fmtVol(mine.target) + '</span>';
+  var people = state.players.length;
+  html += '<span class="badge">👥 ' + people + ' 人一起喝</span>';
+  setHTML("badges", html);
+}
+
+function renderStats(){
+  var goal = myGoal();
+  var points = buildSeries(deviceKey, state.range, goal);
+  var m = seriesMetrics(points);
+  setHTML("metrics",
+    metric("合计", fmtVol(m.total)) +
+    metric("日均", fmtVol(m.avg)) +
+    metric("达标", m.hit + " / " + m.count) +
+    metric("达标率", m.rate + "%")
+  );
+  setHTML("chart", barChart(points, {}));
+  setHTML("legend",
+    '<span><i style="background:#3f8dfa"></i>未达标</span>' +
+    '<span><i style="background:#18b26b"></i>已达标</span>' +
+    '<span><i style="background:#f5a524"></i>目标（按已过天数折算）</span>'
+  );
+}
+function metric(k, v){
+  return '<div class="metric"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div></div>';
+}
+
+function renderBoard(){
+  var d = boardData(state.board);
+  if (!d.rows.length){
+    setHTML("board", '<div class="empty">还没有人加入。</div>');
+  } else {
+    var maxV = d.rows.reduce(function(a, b){ return Math.max(a, Math.max(b.value, b.target)); }, 1);
+    setHTML("board", d.rows.map(function(r){
+      var pct = Math.min(100, Math.round(r.value / maxV * 100));
+      var cls = "brow";
+      if (r.rank === 1) cls += " top1";
+      else if (r.rank === 2) cls += " top2";
+      else if (r.rank === 3) cls += " top3";
+      if (r.device_key === deviceKey) cls += " me";
+      return '<div class="' + cls + '">' +
+        '<span class="rank">' + r.rank + '</span>' +
+        '<span class="brole">' + esc(r.role) + '</span>' +
+        '<span class="bname">' + esc(r.nickname) + (r.device_key === deviceKey ? '<i class="btag">我</i>' : '') + '</span>' +
+        '<span class="bbar"><i class="' + (r.hit ? "hit" : "") + '" style="width:' + pct + '%"></i></span>' +
+        '<span class="bval">' + fmtN(r.value) + '<small>ml</small></span>' +
+        '<span class="bstreak">' + (r.streak > 1 ? "🔥" + r.streak : "") + '</span>' +
+        '</div>';
+    }).join(""));
+  }
+  var label = state.board === "day" ? "今天" : (state.board === "week" ? "本周（周一起）" : "本月");
+  setText("boardFoot", label + " · 从 " + d.from + " 起算，共 " + d.days + " 天 · 每人按自己的目标判定达标");
+}
+
+function renderAll(){
+  renderHeader();
+  renderDateBar();
+  renderDrink();
+  renderLedger();
+  renderBadges();
+  renderStats();
+  renderBoard();
+}
+
+/* ---------- 身份 ---------- */
+function ensureDeviceKey(){
+  var k = null;
+  try { k = localStorage.getItem(DEVICE_STORE); } catch (e){}
+  if (k) return k;
+  k = newKey();
+  try { localStorage.setItem(DEVICE_STORE, k); } catch (e){}
+  return k;
+}
+function newKey(){
+  try {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID().replace(/-/g, "");
+  } catch (e){}
+  var s = "";
+  for (var i = 0; i < 4; i++){
+    s += Math.random().toString(36).slice(2) + Date.now().toString(36).slice(-4);
+  }
+  return s.slice(0, 32);
+}
+
+/* ---------- 载入 ---------- */
+function loadAll(){
+  var since = addDays(todayStr(), -FETCH_DAYS);
+  return Promise.all([api.listPlayers(), api.listEntries(since)]).then(function(r){
+    var pe = r[0], en = r[1];
+    if (pe.error) throw pe.error;
+    if (en.error) throw en.error;
+    state.players = pe.data || [];
+    state.entries = (en.data || []).map(function(e){
+      return { id: e.id, device_key: e.device_key, day: String(e.day), amount: num(e.amount, 0), label: e.label, created_at: e.created_at };
+    });
+    state.me = null;
+    for (var i = 0; i < state.players.length; i++){
+      if (state.players[i].device_key === deviceKey) state.me = state.players[i];
+    }
+    rebuildIndex();
+    state.loaded = true;
+  });
+}
+
+function refresh(){
+  return loadAll().then(function(){
+    renderAll();
+  });
+}
+
+/* ---------- 动作 ---------- */
+function addAmount(amount, label, day){
+  if (state.busy) return Promise.resolve();
+  amount = Math.round(num(amount, 0));
+  if (!amount) return Promise.resolve();
+  state.busy = true;
+  renderDrink(); renderLedger();
+  var row = { device_key: deviceKey, day: day || state.date, amount: amount, label: label || null };
+  return api.insertEntry(row).then(function(res){
+    if (res.error) throw res.error;
+    var created = (res.data && res.data[0]) || row;
+    state.entries.push({
+      id: created.id, device_key: deviceKey, day: String(created.day || row.day),
+      amount: amount, label: created.label != null ? created.label : row.label, created_at: created.created_at
+    });
+    state.busy = false;
+    rebuildIndex();
+    showBanner("");
+    renderAll();
+  }).catch(function(err){
+    state.busy = false;
+    showBanner("记录没写进去：" + errMsg(err), "");
+    renderAll();
+  });
+}
+function undoEntry(id){
+  var e = null;
+  for (var i = 0; i < state.entries.length; i++){
+    if (String(state.entries[i].id) === String(id)) e = state.entries[i];
+  }
+  if (!e) return Promise.resolve();
+  return addAmount(-num(e.amount, 0), "撤销：" + (e.label || "记录"), e.day);
+}
+function errMsg(err){
+  if (!err) return "未知错误";
+  if (err.code === "42501") return "权限不足，这条操作被数据库拒绝了";
+  if (err.message) return err.message;
+  return String(err);
+}
+
+/* ---------- 加入 ---------- */
+var joinRole = ROLES[0];
+function buildRoles(container, current){
+  container.innerHTML = ROLES.map(function(r){
+    return '<button type="button" data-role="' + r + '"' + (r === current ? ' class="on"' : '') + '>' + r + '</button>';
+  }).join("");
+}
+function openJoin(){
+  joinRole = ROLES[0];
+  buildRoles($("joinRoles"), joinRole);
+  renderJoinPick();
+  setText("joinErr", "");
+  var cancelRow = $("joinCancelRow");
+  if (cancelRow) cancelRow.hidden = !state.me;      // 首次加入时不给取消，避免进不去
+  var note = $("joinNote");
+  if (note) note.textContent = state.me
+    ? "选一个已有的人 = 采用 TA 的身份，换设备后两边的记录会合并成一个人。"
+    : "名字在你们这个小圈子里是唯一的，被别人用过就得换一个。";
+  $("maskJoin").classList.add("show");
+}
+
+/* 已加入的人（排除自己），供"选自己"列表使用 */
+function joinCandidates(){
+  return state.players.filter(function(p){ return p.device_key !== deviceKey; });
+}
+function renderJoinPick(){
+  var wrap = $("joinPickWrap");
+  if (!wrap) return;
+  var list = joinCandidates();
+  if (!list.length){ wrap.hidden = true; setHTML("joinPick", ""); return; }
+  wrap.hidden = false;
+  setHTML("joinPick", list.map(function(p){
+    return '<button type="button" class="pk" data-pick="' + esc(p.device_key) + '">' +
+      '<span class="r">' + esc(p.role || "🐳") + '</span>' +
+      '<span class="n">' + esc(p.nickname || "无名") + '</span>' +
+      '<span class="g">目标 ' + fmtN(goalOf(p)) + ' ml</span>' +
+      '</button>';
+  }).join(""));
+}
+/* 页面内确认框。不用 window.confirm：内置浏览器与部分应用内 webview 会屏蔽
+   原生弹窗（confirm 直接返回 false），导致"点了没反应"。 */
+var askResolve = null;
+function askConfirm(title, body, okText){
+  return new Promise(function(resolve){
+    askResolve = resolve;
+    setText("askTitle", title);
+    setHTML("askBody", esc(body));
+    setText("askYes", okText || "确定");
+    $("maskAsk").classList.add("show");
+  });
+}
+function answerAsk(v){
+  var r = askResolve;
+  askResolve = null;
+  var m = $("maskAsk");
+  if (m) m.classList.remove("show");
+  if (r) r(v);
+  return !!v;
+}
+
+/* 采用已有档案的身份：把本机 device_key 换成对方的，之后读写都算在 TA 名下
+   —— 这就是"换手机后找回自己"的实现方式 */
+function adoptPlayer(key){
+  var p = null, i;
+  for (i = 0; i < state.players.length; i++){
+    if (state.players[i].device_key === key) p = state.players[i];
+  }
+  if (!p) return Promise.resolve();
+  return askConfirm(
+    "切换身份",
+    "用「" + (p.nickname || "无名") + "」这个身份进入？\n这台设备之后记的水都会算在 TA 名下。",
+    "用这个身份"
+  ).then(function(yes){
+    if (!yes) return;
+    deviceKey = key;
+    try { localStorage.setItem(DEVICE_STORE, key); } catch (e){}
+    state.me = p;
+    state.date = todayStr();
+    var mask = $("maskJoin");
+    if (mask) mask.classList.remove("show");
+    showBanner("正在切换身份…", "info");
+    return refresh().then(function(){
+      showBanner("");
+    }).catch(function(err){
+      showBanner("切换后读取失败：" + errMsg(err), "warn");
+    });
+  });
+}
+function doJoin(){
+  var name = ($("joinName").value || "").trim();
+  if (name.length < 1) { setText("joinErr", "先取个名字吧"); return; }
+  if (name.length > 12) { setText("joinErr", "名字最多 12 个字"); return; }
+  var btn = $("joinBtn");
+  btn.disabled = true;
+  btn.textContent = "加入中…";
+  setText("joinErr", "");
+  api.createPlayer({
+    device_key: deviceKey, nickname: name, role: joinRole,
+    goal: GOAL_DEFAULT, presets: DEFAULT_PRESETS
+  }).then(function(res){
+    if (res.error) throw res.error;
+    return refresh();
+  }).then(function(){
+    btn.disabled = false; btn.textContent = "加入";
+    if (!state.me){ setText("joinErr", "没找到刚创建的档案，请再试一次"); return; }
+    $("maskJoin").classList.remove("show");
+    showBanner("");
+  }).catch(function(err){
+    btn.disabled = false; btn.textContent = "加入";
+    var code = err && err.code;
+    if (code === "23505") setText("joinErr", "「" + name + "」已经被别人用了，换一个吧");
+    else setText("joinErr", "加入失败：" + errMsg(err));
+  });
+}
+
+/* ---------- 设置 ---------- */
+var meRole = ROLES[0];
+function openMe(){
+  if (!state.me) return;
+  meRole = state.me.role || ROLES[0];
+  $("meNameInput").value = state.me.nickname || "";
+  $("meGoal").value = myGoal();
+  buildRoles($("meRoles"), meRole);
+  renderPresetsEditor();
+  setText("meErr", "");
+  $("maskMe").classList.add("show");
+}
+function renderPresetsEditor(){
+  var list = myPresets();
+  setHTML("mePresets", list.map(function(p, i){
+    return '<div class="pitem">' +
+      '<input class="lbl" data-pi="' + i + '" value="' + esc(p.label || "") + '" placeholder="名称，比如 1 壶">' +
+      '<input class="num" type="number" data-pa="' + i + '" value="' + Math.round(num(p.amt, 0)) + '" min="1" placeholder="ml">' +
+      '<button class="del" data-pd="' + i + '" title="删掉">×</button>' +
+      '</div>';
+  }).join("") || '<div class="note">还没有快捷项</div>');
+}
+function readPresetsFromEditor(){
+  var out = [];
+  var rows = document.querySelectorAll ? document.querySelectorAll("#mePresets .pitem") : [];
+  for (var i = 0; i < rows.length; i++){
+    var l = rows[i].querySelector(".lbl"), a = rows[i].querySelector(".num");
+    var amt = Math.round(num(a && a.value, 0));
+    var label = ((l && l.value) || "").trim();
+    if (amt > 0) out.push({ label: label || (amt + " ml"), amt: amt });
+  }
+  return out.length ? out : DEFAULT_PRESETS.slice();
+}
+function saveMe(){
+  var name = ($("meNameInput").value || "").trim();
+  if (!name){ setText("meErr", "名字不能为空"); return; }
+  var goal = Math.round(num($("meGoal").value, 0));
+  if (!(goal >= 200 && goal <= 20000)){ setText("meErr", "每日目标请填 200 – 20000 之间的数"); return; }
+  var btn = $("meSave");
+  btn.disabled = true;
+  setText("meErr", "");
+  api.updatePlayer(deviceKey, {
+    nickname: name, role: meRole, goal: goal, presets: readPresetsFromEditor()
+  }).then(function(res){
+    if (res.error) throw res.error;
+    if (!res.data || !res.data.length) throw { message: "没有更新到任何记录（可能不是你的档案）" };
+    return refresh();
+  }).then(function(){
+    btn.disabled = false;
+    $("maskMe").classList.remove("show");
+  }).catch(function(err){
+    btn.disabled = false;
+    if (err && err.code === "23505") setText("meErr", "「" + name + "」已经被别人用了，换一个吧");
+    else setText("meErr", "保存失败：" + errMsg(err));
+  });
+}
+
+/* ---------- 事件绑定 ---------- */
+function bind(){
+  var tabs = document.querySelectorAll(".tab");
+  for (var i = 0; i < tabs.length; i++){
+    tabs[i].addEventListener("click", function(){
+      state.view = this.getAttribute("data-view");
+      for (var j = 0; j < tabs.length; j++) tabs[j].classList.toggle("on", tabs[j] === this);
+      $("viewMine").hidden = state.view !== "mine";
+      $("viewBoard").hidden = state.view !== "board";
+      if (state.view === "board") renderBoard();
+    });
+  }
+
+  $("prevDay").addEventListener("click", function(){
+    state.date = addDays(state.date, -1); renderDateBar(); renderDrink(); renderLedger();
+  });
+  $("nextDay").addEventListener("click", function(){
+    if (state.date >= todayStr()) return;
+    state.date = addDays(state.date, 1); renderDateBar(); renderDrink(); renderLedger();
+  });
+  $("goToday").addEventListener("click", function(){
+    state.date = todayStr(); renderDateBar(); renderDrink(); renderLedger();
+  });
+
+  $("chips").addEventListener("click", function(ev){
+    var el = ev.target.closest ? ev.target.closest("[data-preset]") : null;
+    if (!el) return;
+    var p = myPresets()[Number(el.getAttribute("data-preset"))];
+    if (p) addAmount(p.amt, p.label, state.date);
+  });
+
+  $("addCustom").addEventListener("click", function(){
+    var el = $("customAmt"), nt = $("customNote");
+    var v = Math.round(num(el.value, 0));
+    if (!(v > 0)){ el.focus(); return; }
+    var note = nt ? String(nt.value || "").trim().replace(/\s+/g, " ").slice(0, 24) : "";
+    el.value = "";
+    if (nt) nt.value = "";
+    addAmount(v, note || "自定义", state.date);
+  });
+  $("customAmt").addEventListener("keydown", function(ev){
+    if (ev.key === "Enter") $("addCustom").click();
+  });
+  $("customNote").addEventListener("keydown", function(ev){
+    if (ev.key === "Enter") $("addCustom").click();
+  });
+
+  $("ledger").addEventListener("click", function(ev){
+    var el = ev.target.closest ? ev.target.closest("[data-undo]") : null;
+    if (!el) return;
+    var id = el.getAttribute("data-undo");
+    askConfirm("撤销这条记录？", "会追加一条负数抵消，原始记录保留（数据库不允许删除）。", "撤销").then(function(yes){
+      if (yes) undoEntry(id);
+    });
+  });
+
+  var segs = document.querySelectorAll("#rangeSeg button");
+  for (var k = 0; k < segs.length; k++){
+    segs[k].addEventListener("click", function(){
+      state.range = this.getAttribute("data-range");
+      for (var m = 0; m < segs.length; m++) segs[m].classList.toggle("on", segs[m] === this);
+      renderStats();
+    });
+  }
+  var bsegs = document.querySelectorAll("#boardSeg button");
+  for (var b = 0; b < bsegs.length; b++){
+    bsegs[b].addEventListener("click", function(){
+      state.board = this.getAttribute("data-b");
+      for (var m = 0; m < bsegs.length; m++) bsegs[m].classList.toggle("on", bsegs[m] === this);
+      renderBoard();
+    });
+  }
+
+  $("meBtn").addEventListener("click", openMe);
+  $("refreshBtn").addEventListener("click", function(){
+    showBanner("正在刷新…", "info");
+    refresh().then(function(){ showBanner(""); })
+      .catch(function(err){ showBanner("刷新失败：" + errMsg(err), ""); });
+  });
+
+  $("joinRoles").addEventListener("click", function(ev){
+    var el = ev.target.closest ? ev.target.closest("[data-role]") : null;
+    if (!el) return;
+    joinRole = el.getAttribute("data-role");
+    buildRoles($("joinRoles"), joinRole);
+  });
+  $("joinBtn").addEventListener("click", doJoin);
+  $("joinName").addEventListener("keydown", function(ev){ if (ev.key === "Enter") doJoin(); });
+  $("joinPick").addEventListener("click", function(ev){
+    var el = ev.target.closest ? ev.target.closest("[data-pick]") : null;
+    if (!el) return;
+    adoptPlayer(el.getAttribute("data-pick"));
+  });
+  $("joinCancel").addEventListener("click", function(){ $("maskJoin").classList.remove("show"); });
+  $("meSwitch").addEventListener("click", function(){
+    $("maskMe").classList.remove("show");
+    openJoin();
+  });
+  $("askYes").addEventListener("click", function(){ answerAsk(true); });
+  $("askNo").addEventListener("click", function(){ answerAsk(false); });
+  $("maskAsk").addEventListener("click", function(ev){
+    if (ev.target === $("maskAsk")) answerAsk(false);   // 点遮罩外域 = 取消
+  });
+
+  $("meRoles").addEventListener("click", function(ev){
+    var el = ev.target.closest ? ev.target.closest("[data-role]") : null;
+    if (!el) return;
+    meRole = el.getAttribute("data-role");
+    buildRoles($("meRoles"), meRole);
+  });
+  $("meSave").addEventListener("click", saveMe);
+  $("meCancel").addEventListener("click", function(){ $("maskMe").classList.remove("show"); });
+  $("presetAdd").addEventListener("click", function(){
+    var cur = readPresetsFromEditor();
+    cur.push({ label: "", amt: 300 });
+    var save = state.me;
+    state.me = { presets: cur };
+    renderPresetsEditor();
+    state.me = save;
+  });
+  $("mePresets").addEventListener("click", function(ev){
+    var el = ev.target.closest ? ev.target.closest("[data-pd]") : null;
+    if (!el) return;
+    var idx = Number(el.getAttribute("data-pd"));
+    var cur = readPresetsFromEditor().filter(function(_, i){ return i !== idx; });
+    var keep = state.me;
+    state.me = { presets: cur };
+    renderPresetsEditor();
+    state.me = keep;
+  });
+}
+
+/* ---------- 启动 ---------- */
+function loadSdkFallback(i){
+  return new Promise(function(resolve){
+    if (typeof WorkBuddyCloud !== "undefined") return resolve(true);
+    if (i >= SDK_FALLBACKS.length) return resolve(false);
+    var head = document.head || (document.getElementsByTagName && document.getElementsByTagName("head")[0]);
+    if (!head) return resolve(false);
+    var s = document.createElement("script");
+    s.src = SDK_FALLBACKS[i];
+    s.onload = function(){ resolve(typeof WorkBuddyCloud !== "undefined"); };
+    s.onerror = function(){ loadSdkFallback(i + 1).then(resolve); };
+    head.appendChild(s);
+  });
+}
+
+function boot(){
+  deviceKey = ensureDeviceKey();
+  if (typeof WorkBuddyCloud === "undefined"){
+    showBanner("正在加载云端组件…", "info");
+    loadSdkFallback(0).then(function(ok){
+      if (!ok){ showBanner("云端组件没能加载，请检查网络后刷新页面。", ""); return; }
+      run();
+    });
+    return;
+  }
+  run();
+}
+
+function run(){
+  if (!CLOUD || !CLOUD.endpoint || !CLOUD.publishableKey){
+    showBanner("缺少云端配置：请把同目录的 config.example.js 复制为 config.js，填入你自己的 endpoint 与 publishableKey。", "warn");
+    return;
+  }
+  if (!initCloud()){
+    showBanner("云端组件初始化失败，请刷新重试。", "");
+    return;
+  }
+  bind();
+  showBanner("正在读取数据…", "info");
+  refresh().then(function(){
+    showBanner("");
+    if (!state.me){ openJoin(); return; }
+    if (state.players.length === 1){
+      showBanner("你是第一个到的人。把链接发给朋友，他们打开就能加入。", "info");
+    }
+  }).catch(function(err){
+    showBanner("读不到云端数据：" + errMsg(err) + " —— 如果是在本地打开这个文件，这是正常的（云服务按域名校验，必须用它发布后的链接访问）。", "warn");
+  });
+}
+
+if (typeof document !== "undefined" && document.getElementById) boot();
+if (typeof globalThis !== "undefined") {
+  globalThis.__T = {
+    state: state, api: api,
+    setDeviceKey: function(k){ deviceKey = k; },
+    ensureDeviceKey: ensureDeviceKey,
+    esc: esc, fmtN: fmtN, fmtVol: fmtVol, num: num,
+    pd: pd, ymd: ymd, todayStr: todayStr, addDays: addDays, diffDays: diffDays,
+    weekStart: weekStart, monthStart: monthStart, monthShift: monthShift, daysInMonth: daysInMonth,
+    rebuildIndex: rebuildIndex, totalOn: totalOn, goalOf: goalOf, myGoal: myGoal, myPresets: myPresets,
+    streakOf: streakOf, buildSeries: buildSeries, seriesMetrics: seriesMetrics,
+    boardData: boardData, niceScale: niceScale, barChart: barChart,
+    setRange: function(r){ state.range = r; },
+    setBoard: function(r){ state.board = r; },
+    setDate: function(d){ state.date = d; },
+    setMe: function(m){ state.me = m; },
+    addAmount: addAmount, undoEntry: undoEntry, errMsg: errMsg,
+    renderDrink: renderDrink, renderLedger: renderLedger,
+    loadAll: loadAll, refresh: refresh, DEFAULT_PRESETS: DEFAULT_PRESETS,
+    getDeviceKey: function(){ return deviceKey; },
+    openJoin: openJoin, renderJoinPick: renderJoinPick,
+    joinCandidates: joinCandidates, adoptPlayer: adoptPlayer, ROLES: ROLES,
+    askConfirm: askConfirm, answerAsk: answerAsk
+  };
+}
+</script>
+</body>
+</html>
